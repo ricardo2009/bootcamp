@@ -1,6 +1,0 @@
-{   
-    "databaseConfig":{
-        "host": "meu-mongo",
-        "database": "bootcamp-books"
-    }
-}
