@@ -1,0 +1,19 @@
+# - hosts: vm-bootcamp
+#   tasks: 
+#   - name: criando o arquivo
+#     copy: 
+#       dest: /home/ubuntu/index.txt
+#       content: <h1> Feito com Ansible! </h1>
+#   - name: criando um servidor
+#     shell: "nohup busbox httpd -f -p 8080 &"
+
+- hosts: bootcamp
+  tasks:
+  - name: criando o arquivo
+    copy: 
+      dest: /home/ubuntu/index.txt
+      content: <h1> Feito com Ansible! </h1>
+  - name: criando um servidor
+    shell: "nohup busbox httpd -f -p 8080 &"
+    
+  

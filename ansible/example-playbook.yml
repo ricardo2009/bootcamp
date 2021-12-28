@@ -1,0 +1,127 @@
+- hosts: aks-bootcamp
+  tasks:
+  - name: Create a new namespace
+    k8s:
+      api_version: v1
+      kind: Namespace
+      name: bootcamp
+      state: present
+  - name: Create a new deployment
+    k8s:
+      api_version: apps/v1
+      kind: Deployment
+      name: nginx
+      namespace: bootcamp
+      spec:
+        replicas: 3
+        selector:
+          matchLabels:
+            app: nginx
+        template:
+        metadata:
+          labels:
+            app: nginx
+        spec:
+          containers:
+          - name: nginx
+            image: nginx:1.7.9
+            ports:
+            - containerPort: 80
+  - name: Create a new service
+    k8s:
+      api_version: v1
+      kind: Service
+      name: nginx
+      namespace: bootcamp
+      spec:
+        type: LoadBalancer
+        ports:
+        - port: 80
+          targetPort: 80
+        selector:
+          app: nginx
+  - name: Create a new ingress
+    k8s:
+      api_version: extensions/v1beta1
+      kind: Ingress
+      name: nginx
+      namespace: bootcamp
+      spec:
+        rules:
+        - host: nginx.{{ ansible_hostname }}
+          http:
+            paths:
+            - backend:
+                serviceName: nginx
+                servicePort: 80
+  - name: Create a new service account
+    k8s:
+      api_version: v1
+      kind: ServiceAccount
+      name: nginx
+      namespace: bootcamp
+  - name: Create a new role
+    k8s:
+      api_version: rbac.authorization.k8s.io/v1
+      kind: Role
+      name: nginx
+      namespace: bootcamp
+      spec:
+        rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          verbs:
+          - "*"
+  - name: Create a new role binding
+    k8s:
+      api_version: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      name: nginx
+      namespace: bootcamp
+      spec:
+        roleRef:
+          apiGroup: rbac.authorization.k8s.io
+          kind: Role
+          name: nginx
+        subjects:
+        - kind: ServiceAccount
+          name: nginx
+          namespace: bootcamp
+  - name: Create a new service account key
+    k8s:
+      api_version: v1
+      kind: Secret
+      name: nginx-key
+      namespace: bootcamp
+      type: kubernetes.io/service-account-token
+      data:
+        token: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRFNU1EVXhNVEV4TVRFNE1UWXhNVEU0TURZd01EUTVNREV3TVRFd05qQTBNVEV3TURBd1dEQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3
+  - name: Create a new service account key
+    k8s:
+      api_version: v1
+      kind: Secret
+      name: nginx-key
+      namespace: bootcamp
+      type: kubernetes.io/service-account-token
+      data:
+        token: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRFNU1EVXhNVEV4TVRFNE1UWXhNVEU0TURZd01EUTVNREV3TVRFd05qQTBNVEV3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3T
+  - name: Create a new secret
+    k8s:
+      api_version: v1
+      kind: Secret
+      name: nginx-certs
+      namespace: bootcamp
+      type: Opaque
+      data:
+        tls.key: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRFNU1EVXhNVEV4TVRFNE1UWXhNVEU0TURZd01EUTVNREV3TVRFd05qQTBNVEV3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBdw0KQ3hNREF3TURBd01EQXdNREF3TURBd01EQXdNREF3TURBd01EQ
+    
+
+ 
